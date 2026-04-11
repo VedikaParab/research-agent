@@ -13,7 +13,7 @@ custom ReAct orchestration — no LangGraph or heavy frameworks.
 
 ```bash
 # 1. Clone the repo
-git clone <your-repo-url>
+git clone https://github.com/VedikaParab/research-agent.git
 cd research-agent
 
 # 2. Install dependencies
