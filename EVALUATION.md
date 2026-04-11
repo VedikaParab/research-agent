@@ -15,24 +15,6 @@
 
 ---
 
-## Why Include a Failure Case?
-
-A failure case is included because production systems fail. The assignment
-asks whether the agent handles failure gracefully — not just whether it
-works on happy paths. Showing a real failure and recovery demonstrates
-that the system is production-minded, not just demo-ready.
-
-The failure case here is a **real tool authentication failure** that
-occurred naturally during evaluation — not simulated. The Tavily API key
-was accidentally invalidated mid-session, causing every search call to
-return HTTP 401. This is exactly the kind of failure a production system
-must handle gracefully.
-
-A bug was also discovered during this run and fixed — demonstrating
-honest evaluation discipline rather than hiding failures.
-
----
-
 ## Evaluation Rubric
 
 Each query is scored across 5 dimensions on a scale of 1–5:
