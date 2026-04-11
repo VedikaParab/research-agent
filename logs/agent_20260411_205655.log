@@ -1,0 +1,67 @@
+2026-04-11 20:56:55,970 [INFO] root — Logging to logs\agent_20260411_205655.log
+2026-04-11 20:56:55,971 [INFO] __main__ — Question received: 'Which AI model will be the best in 2030'
+2026-04-11 20:56:55,972 [INFO] agent.orchestrator — [agent] Starting research for: 'Which AI model will be the best in 2030'
+2026-04-11 20:56:55,973 [INFO] agent.orchestrator — [agent] Phase 1: Planning
+2026-04-11 20:56:55,974 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.1-8b-instant
+2026-04-11 20:56:57,600 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 20:56:57,622 [INFO] agent.llm — [llm] Success — 747 chars
+2026-04-11 20:56:57,623 [INFO] agent.llm — [llm] Plan parsed — 4 steps
+2026-04-11 20:56:57,624 [INFO] agent.orchestrator — [agent] Plan ready — 4 steps: ["Step 1: Perform a web search for 'top AI models 2030 predictions'", "Step 2: Fetch the content of the Wikipedia page 'List of artificial intelligence topics'", "Step 3: Fetch the content of the Wikipedia page 'Comparison of artificial intelligence and machine learning software'", 'Step 4: Analyze the results from steps 1-3 for mentions of AI models predicted to be top performers in 2030']
+2026-04-11 20:56:57,624 [INFO] agent.orchestrator — [agent] Phase 2: ReAct loop
+2026-04-11 20:56:57,625 [INFO] agent.orchestrator — [agent] Iteration 1/5 — sources so far: 0
+2026-04-11 20:56:57,626 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.1-8b-instant
+2026-04-11 20:56:58,066 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 20:56:58,068 [INFO] agent.llm — [llm] Success — 242 chars
+2026-04-11 20:56:58,069 [INFO] agent.llm — [llm] Action selected: ToolName.web_search
+2026-04-11 20:56:58,069 [INFO] agent.orchestrator — [agent] Decision: action=ToolName.web_search query='top AI models 2030 predictions' url=None
+2026-04-11 20:56:58,070 [INFO] tools.search — [search] query='top AI models 2030 predictions' max_results=5
+2026-04-11 20:56:59,471 [ERROR] tools.search — [search] HTTP error 401: 401 Client Error: Unauthorized for url: https://api.tavily.com/search
+2026-04-11 20:56:59,471 [ERROR] agent.orchestrator — [agent] Iteration 1: search error — Tavily returned HTTP 401: 401 Client Error: Unauthorized for url: https://api.tavily.com/search
+2026-04-11 20:56:59,474 [INFO] agent.orchestrator — [agent] Iteration 2/5 — sources so far: 0
+2026-04-11 20:56:59,474 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.1-8b-instant
+2026-04-11 20:56:59,496 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-04-11 20:56:59,497 [INFO] openai._base_client — Retrying request to /chat/completions in 3.000000 seconds
+2026-04-11 20:57:02,839 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 20:57:02,842 [INFO] agent.llm — [llm] Success — 195 chars
+2026-04-11 20:57:02,843 [INFO] agent.llm — [llm] Action selected: ToolName.web_search
+2026-04-11 20:57:02,843 [INFO] agent.orchestrator — [agent] Decision: action=ToolName.web_search query='top AI models 2030 predictions' url=None
+2026-04-11 20:57:02,844 [WARNING] agent.orchestrator — [agent] Iteration 2: duplicate query skipped — 'top AI models 2030 predictions'
+2026-04-11 20:57:02,844 [INFO] agent.orchestrator — [agent] Iteration 3/5 — sources so far: 0
+2026-04-11 20:57:02,844 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.1-8b-instant
+2026-04-11 20:57:02,865 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-04-11 20:57:02,867 [INFO] openai._base_client — Retrying request to /chat/completions in 10.000000 seconds
+2026-04-11 20:57:13,285 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 20:57:13,287 [INFO] agent.llm — [llm] Success — 191 chars
+2026-04-11 20:57:13,288 [INFO] agent.llm — [llm] Action selected: ToolName.web_search
+2026-04-11 20:57:13,289 [INFO] agent.orchestrator — [agent] Decision: action=ToolName.web_search query='AI model predictions 2030' url=None
+2026-04-11 20:57:13,289 [INFO] tools.search — [search] query='AI model predictions 2030' max_results=5
+2026-04-11 20:57:14,616 [ERROR] tools.search — [search] HTTP error 401: 401 Client Error: Unauthorized for url: https://api.tavily.com/search
+2026-04-11 20:57:14,617 [ERROR] agent.orchestrator — [agent] Iteration 3: search error — Tavily returned HTTP 401: 401 Client Error: Unauthorized for url: https://api.tavily.com/search
+2026-04-11 20:57:14,621 [INFO] agent.orchestrator — [agent] Iteration 4/5 — sources so far: 0
+2026-04-11 20:57:14,622 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.1-8b-instant
+2026-04-11 20:57:14,643 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-04-11 20:57:14,647 [INFO] openai._base_client — Retrying request to /chat/completions in 6.000000 seconds
+2026-04-11 20:57:20,865 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-04-11 20:57:20,866 [INFO] openai._base_client — Retrying request to /chat/completions in 1.000000 seconds
+2026-04-11 20:57:22,185 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 20:57:22,188 [INFO] agent.llm — [llm] Success — 255 chars
+2026-04-11 20:57:22,189 [INFO] agent.llm — [llm] Action selected: ToolName.web_search
+2026-04-11 20:57:22,189 [INFO] agent.orchestrator — [agent] Decision: action=ToolName.web_search query='top AI models 2030 predictions' url=None
+2026-04-11 20:57:22,190 [WARNING] agent.orchestrator — [agent] Iteration 4: duplicate query skipped — 'top AI models 2030 predictions'
+2026-04-11 20:57:22,191 [INFO] agent.orchestrator — [agent] Iteration 5/5 — sources so far: 0
+2026-04-11 20:57:22,192 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.1-8b-instant
+2026-04-11 20:57:22,255 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-04-11 20:57:22,256 [INFO] openai._base_client — Retrying request to /chat/completions in 9.000000 seconds
+2026-04-11 20:57:32,450 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 20:57:32,452 [INFO] agent.llm — [llm] Success — 254 chars
+2026-04-11 20:57:32,453 [INFO] agent.llm — [llm] Action selected: ToolName.web_search
+2026-04-11 20:57:32,454 [INFO] agent.orchestrator — [agent] Decision: action=ToolName.web_search query='top AI models 2030 predictions' url=None
+2026-04-11 20:57:32,454 [WARNING] agent.orchestrator — [agent] Iteration 5: duplicate query skipped — 'top AI models 2030 predictions'
+2026-04-11 20:57:32,455 [INFO] agent.orchestrator — [agent] ReAct loop complete — 5 iterations, 0 sources, 5 errors
+2026-04-11 20:57:32,455 [INFO] agent.orchestrator — [agent] Phase 3: Synthesis — 0/0 quality sources
+2026-04-11 20:57:32,456 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.3-70b-versatile
+2026-04-11 20:57:33,568 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 20:57:33,569 [INFO] agent.llm — [llm] Success — 1298 chars
+2026-04-11 20:57:33,572 [INFO] agent.llm — [llm] Final parsed — confidence=ConfidenceLevel.low
+2026-04-11 20:57:33,573 [INFO] agent.orchestrator — [judge] Issues flagged: ['Question is speculative — answer reflects current trends only', 'Very few sources — answer may be incomplete']
+2026-04-11 20:57:33,574 [INFO] agent.orchestrator — [agent] Synthesis complete — confidence=Low, findings=0, sources=0

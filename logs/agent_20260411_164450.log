@@ -1,0 +1,52 @@
+2026-04-11 16:44:50,674 [INFO] root — Logging to logs\agent_20260411_164450.log
+2026-04-11 16:44:50,675 [INFO] __main__ — Question received: 'Which AI model will be the best in 2030'
+2026-04-11 16:44:50,675 [INFO] agent.orchestrator — [agent] Starting research for: 'Which AI model will be the best in 2030'
+2026-04-11 16:44:50,675 [INFO] agent.orchestrator — [agent] Phase 1: Planning
+2026-04-11 16:44:50,676 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.1-8b-instant
+2026-04-11 16:44:51,769 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 16:44:51,789 [INFO] agent.llm — [llm] Success — 886 chars
+2026-04-11 16:44:51,790 [INFO] agent.llm — [llm] Plan parsed — 4 steps
+2026-04-11 16:44:51,791 [INFO] agent.orchestrator — [agent] Plan ready — 4 steps: ["Step 1: Perform a web search for 'top AI models 2023' to identify current leading models and trends", "Step 2: Fetch the page from the website 'arxiv.org' to find recent research papers on AI advancements and predictions for future models", "Step 3: Perform a web search for 'AI model predictions 2030' to gather information on expert opinions and forecasts for the future AI landscape", 'Step 4: Analyze the results from steps 1-3 to identify patterns and trends that may indicate the best AI model in 2030']
+2026-04-11 16:44:51,792 [INFO] agent.orchestrator — [agent] Phase 2: ReAct loop
+2026-04-11 16:44:51,793 [INFO] agent.orchestrator — [agent] Iteration 1/5 — sources so far: 0
+2026-04-11 16:44:51,793 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.1-8b-instant
+2026-04-11 16:44:52,049 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 16:44:52,052 [INFO] agent.llm — [llm] Success — 234 chars
+2026-04-11 16:44:52,053 [INFO] agent.llm — [llm] Action selected: ToolName.web_search
+2026-04-11 16:44:52,054 [INFO] agent.orchestrator — [agent] Decision: action=ToolName.web_search query='top AI models 2023' url=None
+2026-04-11 16:44:52,055 [INFO] tools.search — [search] query='top AI models 2023' max_results=5
+2026-04-11 16:44:54,364 [INFO] tools.search — [search] 5 results returned, 5 passed filter
+2026-04-11 16:44:54,366 [INFO] agent.orchestrator — [agent] web_search 'top AI models 2023' → 5 results, 5 new
+2026-04-11 16:44:54,367 [INFO] agent.orchestrator — [agent] Iteration 2/5 — sources so far: 5
+2026-04-11 16:44:54,367 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.1-8b-instant
+2026-04-11 16:44:54,802 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 16:44:54,804 [INFO] agent.llm — [llm] Success — 261 chars
+2026-04-11 16:44:54,805 [INFO] agent.llm — [llm] Action selected: ToolName.web_search
+2026-04-11 16:44:54,805 [INFO] agent.orchestrator — [agent] Decision: action=ToolName.web_search query='recent AI research papers on future models' url=None
+2026-04-11 16:44:54,806 [INFO] tools.search — [search] query='recent AI research papers on future models' max_results=5
+2026-04-11 16:44:57,035 [INFO] tools.search — [search] 5 results returned, 5 passed filter
+2026-04-11 16:44:57,040 [INFO] agent.orchestrator — [agent] web_search 'recent AI research papers on future models' → 5 results, 5 new
+2026-04-11 16:44:57,040 [INFO] agent.orchestrator — [agent] Iteration 3/5 — sources so far: 10
+2026-04-11 16:44:57,041 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.1-8b-instant
+2026-04-11 16:44:57,930 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 16:44:57,932 [INFO] agent.llm — [llm] Success — 203 chars
+2026-04-11 16:44:57,932 [INFO] agent.llm — [llm] Action selected: ToolName.web_search
+2026-04-11 16:44:57,933 [INFO] agent.orchestrator — [agent] Decision: action=ToolName.web_search query='future AI model advancements' url=None
+2026-04-11 16:44:57,933 [INFO] tools.search — [search] query='future AI model advancements' max_results=5
+2026-04-11 16:45:00,238 [INFO] tools.search — [search] 5 results returned, 5 passed filter
+2026-04-11 16:45:00,242 [INFO] agent.orchestrator — [agent] web_search 'future AI model advancements' → 5 results, 5 new
+2026-04-11 16:45:00,243 [INFO] agent.orchestrator — [agent] Sufficient sources (15) after 3 iterations — stopping early
+2026-04-11 16:45:00,244 [INFO] agent.orchestrator — [agent] ReAct loop complete — 3 iterations, 15 sources, 0 errors
+2026-04-11 16:45:00,244 [INFO] agent.orchestrator — [agent] Dropping low-quality source: https://www.reddit.com/r/ArtificialInteligence/comments/1p8j203/i_benchmarked_15_ai_models_against_realworld/
+2026-04-11 16:45:00,246 [INFO] agent.orchestrator — [agent] Dropping low-quality source: https://intuitionlabs.ai/articles/latest-ai-research-trends-2025
+2026-04-11 16:45:00,246 [INFO] agent.orchestrator — [agent] Dropping low-quality source: https://arxiv.org/abs/2511.05535
+2026-04-11 16:45:00,247 [INFO] agent.orchestrator — [agent] Dropping low-quality source: https://hai.stanford.edu/ai-index/2025-ai-index-report/research-and-development
+2026-04-11 16:45:00,248 [INFO] agent.orchestrator — [agent] Dropping low-quality source: https://arxiv.org/list/cs.AI/recent
+2026-04-11 16:45:00,249 [INFO] agent.orchestrator — [agent] Dropping low-quality source: https://towardsdatascience.com/ai-papers-to-read-in-2025/
+2026-04-11 16:45:00,250 [INFO] agent.orchestrator — [agent] Dropping low-quality source: https://www.linkedin.com/pulse/future-ai-trends-impacts-predictions-simplilearn-qzr9c
+2026-04-11 16:45:00,250 [INFO] agent.orchestrator — [agent] Dropping low-quality source: https://blog.umu.com/a/1884537196_ai-advancements-what-you-need-to-know-about-the-future-of-ai-and-its-i
+2026-04-11 16:45:00,251 [INFO] agent.orchestrator — [agent] Phase 3: Synthesis — 7/15 quality sources
+2026-04-11 16:45:00,252 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.3-70b-versatile
+2026-04-11 16:45:02,382 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 16:45:02,394 [INFO] agent.llm — [llm] Success — 3703 chars
+2026-04-11 16:45:02,397 [INFO] agent.llm — [llm] Final parsed — confidence=ConfidenceLevel.medium

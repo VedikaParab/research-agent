@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "query": "Compare the top 3 open-source vector databases for RAG",
+    "type": "comparison",
+    "expected": "Names 3 specific open-source DBs with concrete tradeoffs",
+    "expected_confidence": "High or Medium"
+  },
+  {
+    "id": 2,
+    "query": "Find 5 Indian B2B SaaS startups in HR tech",
+    "type": "list",
+    "expected": "5 named startups with positioning summaries",
+    "expected_confidence": "Medium"
+  },
+  {
+    "id": 3,
+    "query": "Pros and cons of multi-agent architecture for customer support",
+    "type": "conceptual",
+    "expected": "Balanced pros and cons with specific tradeoffs",
+    "expected_confidence": "Medium or High"
+  },
+  {
+    "id": 4,
+    "query": "Which AI model will be the best in 2030",
+    "type": "edge_case_speculative",
+    "expected": "Low confidence, hedged answer, no hallucinated model names",
+    "expected_confidence": "Low"
+  },
+  {
+    "id": 5,
+    "query": "Compare memory approaches in AI support agents",
+    "type": "failure_case",
+    "expected": "Graceful degradation if tools fail, empty answer fallback fires",
+    "expected_confidence": "Low if tools broken"
+  }
+]

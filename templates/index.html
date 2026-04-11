@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Research Agent</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #1a1a1a; min-height: 100vh; }
+
+    .header { background: #fff; border-bottom: 1px solid #e5e5e5; padding: 1rem 2rem; display: flex; align-items: center; gap: 12px; }
+    .header h1 { font-size: 18px; font-weight: 600; }
+    .header span { font-size: 13px; color: #888; }
+
+    .container { max-width: 860px; margin: 2rem auto; padding: 0 1.5rem; }
+
+    .search-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .search-row { display: flex; gap: 10px; }
+    .search-row input { flex: 1; padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; transition: border-color .2s; }
+    .search-row input:focus { border-color: #555; }
+    .search-row button { padding: 10px 20px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; transition: background .2s; white-space: nowrap; }
+    .search-row button:hover { background: #333; }
+    .search-row button:disabled { background: #999; cursor: not-allowed; }
+
+    .sample-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .sample-row span { font-size: 12px; color: #888; align-self: center; }
+    .sample-btn { padding: 4px 12px; border: 1px solid #ddd; border-radius: 20px; font-size: 12px; cursor: pointer; background: #f9f9f9; color: #555; transition: all .15s; }
+    .sample-btn:hover { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+
+    .thinking { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 2rem; text-align: center; color: #888; display: none; }
+    .thinking .dots span { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #ccc; margin: 0 3px; animation: bounce 1.2s ease-in-out infinite; }
+    .thinking .dots span:nth-child(2) { animation-delay: .2s; }
+    .thinking .dots span:nth-child(3) { animation-delay: .4s; }
+    @keyframes bounce { 0%,100%{opacity:.3;transform:translateY(0)} 50%{opacity:1;transform:translateY(-4px)} }
+
+    .result { display: none; }
+
+    .confidence-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
+    .confidence-pill { padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+    .confidence-pill.High { background: #dcfce7; color: #166534; }
+    .confidence-pill.Medium { background: #fef9c3; color: #854d0e; }
+    .confidence-pill.Low { background: #fee2e2; color: #991b1b; }
+    .confidence-reason { font-size: 13px; color: #666; }
+
+    .section { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+    .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: #999; margin-bottom: 10px; }
+    .short-answer { font-size: 15px; line-height: 1.7; color: #1a1a1a; }
+
+    .finding { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; line-height: 1.6; color: #333; }
+    .finding:last-child { border-bottom: none; padding-bottom: 0; }
+    .finding-num { min-width: 22px; height: 22px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #666; flex-shrink: 0; margin-top: 1px; }
+
+    .source { padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+    .source:last-child { border-bottom: none; padding-bottom: 0; }
+    .source-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 4px; }
+    .source-title { font-size: 13px; font-weight: 500; color: #1a1a1a; flex: 1; }
+    .source-score { font-size: 11px; color: #999; white-space: nowrap; margin-top: 2px; }
+    .score-track { height: 4px; background: #f0f0f0; border-radius: 2px; margin-bottom: 4px; overflow: hidden; }
+    .score-fill { height: 100%; border-radius: 2px; background: #16a34a; }
+    .source-url { font-size: 11px; color: #2563eb; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; margin-bottom: 4px; }
+    .source-url:hover { text-decoration: underline; }
+    .source-snippet { font-size: 12px; color: #666; line-height: 1.5; font-style: italic; }
+
+    .tag-list { display: flex; flex-direction: column; gap: 6px; }
+    .tag-item { display: flex; gap: 8px; font-size: 13px; color: #444; line-height: 1.5; }
+    .tag-item::before { flex-shrink: 0; margin-top: 2px; }
+    .tag-item.limit::before { content: "\2022"; color: #999; }
+    .tag-item.assume::before { content: "\007E"; color: #999; font-weight: 600; }
+    .tag-item.step::before { content: "\2192"; color: #16a34a; font-weight: 600; }
+
+    .tabs { display: flex; gap: 0; margin-bottom: 1rem; border-bottom: 1px solid #e5e5e5; }
+    .tab { padding: 8px 16px; font-size: 13px; color: #888; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+    .tab.active { color: #1a1a1a; border-bottom-color: #1a1a1a; font-weight: 500; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .error-box { background: #fee2e2; border: 1px solid #fca5a5; border-radius: 12px; padding: 1.25rem 1.5rem; color: #991b1b; font-size: 14px; display: none; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Research Agent</h1>
+  <span>Research your questions with AI.</span>
+</div>
+
+<div class="container">
+
+  <div class="search-card">
+    <div class="search-row">
+      <input type="text" id="question-input" placeholder="Ask a research question..." value="Find 5 Indian B2B SaaS startups in HR tech"/>
+      <button id="research-btn" onclick="runResearch()">Research</button>
+    </div>
+    <div class="sample-row">
+      <span>Try:</span>
+      <button class="sample-btn" onclick="setQ('Compare the top 3 open-source vector databases for RAG')">Vector DBs</button>
+      <button class="sample-btn" onclick="setQ('Find 5 Indian B2B SaaS startups in HR tech')">HR startups</button>
+      <button class="sample-btn" onclick="setQ('Pros and cons of multi-agent architecture for customer support')">Multi-agent</button>
+      <button class="sample-btn" onclick="setQ('Which AI model will be the best in 2030')">Edge case</button>
+    </div>
+  </div>
+
+  <div class="error-box" id="error-box"></div>
+
+  <div class="thinking" id="thinking">
+    <div class="dots"><span></span><span></span><span></span></div>
+    <p style="margin-top:12px;font-size:14px;">Researching, this may take 30&ndash;60 seconds...</p>
+  </div>
+
+  <div class="result" id="result">
+
+    <div class="confidence-bar">
+      <span class="confidence-pill" id="conf-pill"></span>
+      <span class="confidence-reason" id="conf-reason"></span>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('answer',this)">Answer</div>
+      <div class="tab" onclick="switchTab('sources',this)">Sources</div>
+      <div class="tab" onclick="switchTab('meta',this)">Limitations & next steps</div>
+    </div>
+
+    <div class="tab-panel active" id="tab-answer">
+      <div class="section">
+        <div class="section-label">Question</div>
+        <div class="short-answer" id="question-display" style="color:#666;font-size:14px;"></div>
+      </div>
+      <div class="section">
+        <div class="section-label">Short answer</div>
+        <div class="short-answer" id="short-answer"></div>
+      </div>
+      <div class="section">
+        <div class="section-label">Key findings</div>
+        <div id="findings"></div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-sources">
+      <div class="section">
+        <div class="section-label">Sources used</div>
+        <div id="sources"></div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-meta">
+      <div class="section">
+        <div class="section-label">Limitations</div>
+        <div class="tag-list" id="limitations"></div>
+      </div>
+      <div class="section">
+        <div class="section-label">Assumptions</div>
+        <div class="tag-list" id="assumptions"></div>
+      </div>
+      <div class="section">
+        <div class="section-label">Suggested next steps</div>
+        <div class="tag-list" id="next-steps"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function setQ(q) {
+    document.getElementById('question-input').value = q;
+  }
+
+  function switchTab(name, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+  }
+
+  async function runResearch() {
+    const q = document.getElementById('question-input').value.trim();
+    if (!q) return;
+
+    document.getElementById('research-btn').disabled = true;
+    document.getElementById('research-btn').textContent = 'Researching...';
+    document.getElementById('thinking').style.display = 'block';
+    document.getElementById('result').style.display = 'none';
+    document.getElementById('error-box').style.display = 'none';
+
+    try {
+      const res = await fetch('/research', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({question: q})
+      });
+
+      if (!res.ok) throw new Error('Server error: ' + res.status);
+      const data = await res.json();
+      renderResult(data);
+
+    } catch(e) {
+      document.getElementById('error-box').textContent = 'Error: ' + e.message + '. Make sure your FastAPI server is running.';
+      document.getElementById('error-box').style.display = 'block';
+    } finally {
+      document.getElementById('thinking').style.display = 'none';
+      document.getElementById('research-btn').disabled = false;
+      document.getElementById('research-btn').textContent = 'Research';
+    }
+  }
+
+  function renderResult(data) {
+    const conf = data.confidence_level;
+    document.getElementById('conf-pill').textContent = conf;
+    document.getElementById('conf-pill').className = 'confidence-pill ' + conf;
+    document.getElementById('conf-reason').textContent = data.confidence_reasoning;
+
+    document.getElementById('question-display').textContent = data.question;
+    document.getElementById('short-answer').textContent = data.short_answer;
+
+    const findings = document.getElementById('findings');
+    findings.innerHTML = data.key_findings.map((f, i) =>
+      `<div class="finding"><div class="finding-num">${i+1}</div><div>${f}</div></div>`
+    ).join('');
+
+    const sources = document.getElementById('sources');
+    sources.innerHTML = data.sources.map(s => {
+      const score = Math.round(s.relevance_score * 100);
+      return `
+        <div class="source">
+          <div class="source-header">
+            <div class="source-title">${s.title}</div>
+            <div class="source-score">${score}% relevant</div>
+          </div>
+          <div class="score-track"><div class="score-fill" style="width:${score}%"></div></div>
+          <a class="source-url" href="${s.url}" target="_blank">${s.url}</a>
+          <div class="source-snippet">"${s.snippet.slice(0,180)}..."</div>
+        </div>`;
+    }).join('');
+
+    document.getElementById('limitations').innerHTML =
+      data.limitations.map(l => `<div class="tag-item limit">${l}</div>`).join('');
+
+    document.getElementById('assumptions').innerHTML =
+      data.assumptions.map(a => `<div class="tag-item assume">${a}</div>`).join('');
+
+    document.getElementById('next-steps').innerHTML =
+      data.suggested_next_steps.map(s => `<div class="tag-item step">${s}</div>`).join('');
+
+    document.getElementById('result').style.display = 'block';
+
+    // switch back to answer tab
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector('.tab').classList.add('active');
+    document.getElementById('tab-answer').classList.add('active');
+  }
+
+  document.getElementById('question-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') runResearch();
+  });
+</script>
+</body>
+</html>

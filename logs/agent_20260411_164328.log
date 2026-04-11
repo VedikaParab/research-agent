@@ -1,0 +1,49 @@
+2026-04-11 16:43:28,414 [INFO] root — Logging to logs\agent_20260411_164328.log
+2026-04-11 16:43:28,415 [INFO] __main__ — Question received: 'Find 5 Indian B2B SaaS startups in HR tech'
+2026-04-11 16:43:28,416 [INFO] agent.orchestrator — [agent] Starting research for: 'Find 5 Indian B2B SaaS startups in HR tech'
+2026-04-11 16:43:28,416 [INFO] agent.orchestrator — [agent] Phase 1: Planning
+2026-04-11 16:43:28,417 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.1-8b-instant
+2026-04-11 16:43:30,309 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 16:43:30,333 [INFO] agent.llm — [llm] Success — 906 chars
+2026-04-11 16:43:30,334 [INFO] agent.llm — [llm] Plan parsed — 4 steps
+2026-04-11 16:43:30,334 [INFO] agent.orchestrator — [agent] Plan ready — 4 steps: ['Step 1: Search the web for lists of Indian B2B SaaS startups in HR tech', 'Step 2: Filter the results to only include startups that are currently active', 'Step 3: Fetch the content of a popular Indian startup list website (e.g. YourStory, Inc42) to see if they have a list of HR tech startups', 'Step 4: Manually verify the top 5 results from Steps 1 and 3 to confirm they meet the criteria']
+2026-04-11 16:43:30,335 [INFO] agent.orchestrator — [agent] Phase 2: ReAct loop
+2026-04-11 16:43:30,335 [INFO] agent.orchestrator — [agent] Iteration 1/5 — sources so far: 0
+2026-04-11 16:43:30,336 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.1-8b-instant
+2026-04-11 16:43:31,016 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 16:43:31,017 [INFO] agent.llm — [llm] Success — 206 chars
+2026-04-11 16:43:31,018 [INFO] agent.llm — [llm] Action selected: ToolName.web_search
+2026-04-11 16:43:31,019 [INFO] agent.orchestrator — [agent] Decision: action=ToolName.web_search query='Indian B2B SaaS HR tech startups' url=None
+2026-04-11 16:43:31,019 [INFO] tools.search — [search] query='Indian B2B SaaS HR tech startups' max_results=5
+2026-04-11 16:43:33,598 [INFO] tools.search — [search] 5 results returned, 5 passed filter
+2026-04-11 16:43:33,600 [INFO] agent.orchestrator — [agent] web_search 'Indian B2B SaaS HR tech startups' → 5 results, 5 new
+2026-04-11 16:43:33,600 [INFO] agent.orchestrator — [agent] Iteration 2/5 — sources so far: 5
+2026-04-11 16:43:33,601 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.1-8b-instant
+2026-04-11 16:43:33,985 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 16:43:33,987 [INFO] agent.llm — [llm] Success — 246 chars
+2026-04-11 16:43:33,988 [INFO] agent.llm — [llm] Action selected: ToolName.web_search
+2026-04-11 16:43:33,988 [INFO] agent.orchestrator — [agent] Decision: action=ToolName.web_search query='Indian B2B SaaS HR tech startups currently active' url=None
+2026-04-11 16:43:33,989 [INFO] tools.search — [search] query='Indian B2B SaaS HR tech startups currently active' max_results=5
+2026-04-11 16:43:35,933 [INFO] tools.search — [search] 5 results returned, 5 passed filter
+2026-04-11 16:43:35,936 [INFO] agent.orchestrator — [agent] web_search 'Indian B2B SaaS HR tech startups currently active' → 5 results, 4 new
+2026-04-11 16:43:35,937 [INFO] agent.orchestrator — [agent] Iteration 3/5 — sources so far: 9
+2026-04-11 16:43:35,937 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.1-8b-instant
+2026-04-11 16:43:36,310 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 16:43:36,342 [INFO] agent.llm — [llm] Success — 263 chars
+2026-04-11 16:43:36,343 [INFO] agent.llm — [llm] Action selected: ToolName.web_search
+2026-04-11 16:43:36,343 [INFO] agent.orchestrator — [agent] Decision: action=ToolName.web_search query='Indian B2B SaaS HR tech startups currently active' url=None
+2026-04-11 16:43:36,344 [WARNING] agent.orchestrator — [agent] Iteration 3: duplicate query skipped — 'Indian B2B SaaS HR tech startups currently active'
+2026-04-11 16:43:36,344 [INFO] agent.orchestrator — [agent] Sufficient sources (9) after 3 iterations — stopping early
+2026-04-11 16:43:36,345 [INFO] agent.orchestrator — [agent] ReAct loop complete — 3 iterations, 9 sources, 1 errors
+2026-04-11 16:43:36,345 [INFO] agent.orchestrator — [agent] Dropping low-quality source: https://wellfound.com/startups/l/india/hr-tech-1
+2026-04-11 16:43:36,345 [INFO] agent.orchestrator — [agent] Dropping low-quality source: https://www.linkedin.com/pulse/top-hr-software-companies-india-one-best-solutions-n5f8f
+2026-04-11 16:43:36,346 [INFO] agent.orchestrator — [agent] Dropping low-quality source: https://indbiz.gov.in/hr-startups-preparing-indias-future-workforce/
+2026-04-11 16:43:36,346 [INFO] agent.orchestrator — [agent] Dropping low-quality source: https://www.f6s.com/companies/saas/india/karnataka/bangalore/co
+2026-04-11 16:43:36,346 [INFO] agent.orchestrator — [agent] Dropping low-quality source: https://www.instagram.com/p/DVGbi-nD88I/
+2026-04-11 16:43:36,346 [INFO] agent.orchestrator — [agent] Dropping low-quality source: https://www.ventureintelligence.com/Indian-Unicorn-Tracker
+2026-04-11 16:43:36,346 [INFO] agent.orchestrator — [agent] Dropping low-quality source: https://www.landbase.com/blog/fastest-growing-hr-tech-companies
+2026-04-11 16:43:36,347 [INFO] agent.orchestrator — [agent] Phase 3: Synthesis — 2/9 quality sources
+2026-04-11 16:43:36,347 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.3-70b-versatile
+2026-04-11 16:43:37,655 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 16:43:37,657 [INFO] agent.llm — [llm] Success — 1944 chars
+2026-04-11 16:43:37,658 [INFO] agent.llm — [llm] Final parsed — confidence=ConfidenceLevel.low

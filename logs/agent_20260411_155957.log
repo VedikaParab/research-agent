@@ -1,0 +1,45 @@
+2026-04-11 15:59:57,395 [INFO] root — Logging to logs\agent_20260411_155957.log
+2026-04-11 15:59:57,395 [INFO] __main__ — Question received: 'Compare the top 3 open-source vector databases for RAG'
+2026-04-11 15:59:57,396 [INFO] agent.orchestrator — [agent] Starting research for: 'Compare the top 3 open-source vector databases for RAG'
+2026-04-11 15:59:57,396 [INFO] agent.orchestrator — [agent] Phase 1: Planning
+2026-04-11 15:59:57,396 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.1-8b-instant
+2026-04-11 15:59:59,374 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 15:59:59,390 [INFO] agent.llm — [llm] Success — 899 chars
+2026-04-11 15:59:59,391 [INFO] agent.llm — [llm] Plan parsed — 4 steps
+2026-04-11 15:59:59,392 [INFO] agent.orchestrator — [agent] Plan ready — 4 steps: ["Step 1: Identify the top 3 open-source vector databases for RAG using web_search with query 'top open-source vector databases for RAG'", 'Step 2: Fetch the official documentation of each of the top 3 databases identified in Step 1 using fetch_page', "Step 3: Compare the features of each database using web_search with query 'features of [database name]' for each database", "Step 4: Evaluate the performance of each database using web_search with query '[database name] performance benchmark'"]
+2026-04-11 15:59:59,392 [INFO] agent.orchestrator — [agent] Phase 2: ReAct loop
+2026-04-11 15:59:59,393 [INFO] agent.orchestrator — [agent] Iteration 1/5 — sources so far: 0
+2026-04-11 15:59:59,393 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.1-8b-instant
+2026-04-11 15:59:59,567 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 15:59:59,569 [INFO] agent.llm — [llm] Success — 206 chars
+2026-04-11 15:59:59,570 [INFO] agent.llm — [llm] Action selected: ToolName.web_search
+2026-04-11 15:59:59,570 [INFO] agent.orchestrator — [agent] Decision: action=ToolName.web_search query='top open-source vector databases for RAG' url=None
+2026-04-11 15:59:59,571 [INFO] tools.search — [search] query='top open-source vector databases for RAG' max_results=5
+2026-04-11 16:00:01,637 [INFO] tools.search — [search] 5 results returned, 5 passed filter
+2026-04-11 16:00:01,639 [INFO] agent.orchestrator — [agent] web_search 'top open-source vector databases for RAG' → 5 results, 5 new
+2026-04-11 16:00:01,639 [INFO] agent.orchestrator — [agent] Iteration 2/5 — sources so far: 5
+2026-04-11 16:00:01,639 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.1-8b-instant
+2026-04-11 16:00:01,979 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 16:00:01,980 [INFO] agent.llm — [llm] Success — 275 chars
+2026-04-11 16:00:01,981 [INFO] agent.llm — [llm] Action selected: ToolName.web_search
+2026-04-11 16:00:01,981 [INFO] agent.orchestrator — [agent] Decision: action=ToolName.web_search query='top 3 open-source vector databases for RAG' url=None
+2026-04-11 16:00:01,981 [INFO] tools.search — [search] query='top 3 open-source vector databases for RAG' max_results=5
+2026-04-11 16:00:04,534 [INFO] tools.search — [search] 5 results returned, 5 passed filter
+2026-04-11 16:00:04,536 [INFO] agent.orchestrator — [agent] web_search 'top 3 open-source vector databases for RAG' → 5 results, 1 new
+2026-04-11 16:00:04,537 [INFO] agent.orchestrator — [agent] Iteration 3/5 — sources so far: 6
+2026-04-11 16:00:04,537 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.1-8b-instant
+2026-04-11 16:00:05,241 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 16:00:05,244 [INFO] agent.llm — [llm] Success — 219 chars
+2026-04-11 16:00:05,245 [INFO] agent.llm — [llm] Action selected: ToolName.web_search
+2026-04-11 16:00:05,246 [INFO] agent.orchestrator — [agent] Decision: action=ToolName.web_search query='top 3 open-source vector databases for RAG' url=None
+2026-04-11 16:00:05,246 [WARNING] agent.orchestrator — [agent] Iteration 3: duplicate query skipped — 'top 3 open-source vector databases for RAG'
+2026-04-11 16:00:05,247 [INFO] agent.orchestrator — [agent] Sufficient sources (6) after 3 iterations — stopping early
+2026-04-11 16:00:05,248 [INFO] agent.orchestrator — [agent] ReAct loop complete — 3 iterations, 6 sources, 1 errors
+2026-04-11 16:00:05,248 [INFO] agent.orchestrator — [agent] Phase 3: Synthesis — 6 sources, 1 errors
+2026-04-11 16:00:05,249 [INFO] agent.llm — [llm] Attempt 1/3 — model=llama-3.1-8b-instant
+2026-04-11 16:00:05,324 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-04-11 16:00:05,326 [INFO] openai._base_client — Retrying request to /chat/completions in 28.000000 seconds
+2026-04-11 16:00:34,599 [INFO] httpx — HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-11 16:00:34,600 [INFO] agent.llm — [llm] Success — 3616 chars
+2026-04-11 16:00:34,601 [INFO] agent.llm — [llm] Final parsed — confidence=ConfidenceLevel.medium
+2026-04-11 16:00:34,601 [INFO] agent.orchestrator — [agent] Synthesis complete — confidence=ConfidenceLevel.medium, findings=3, sources=6
