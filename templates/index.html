@@ -3,168 +3,806 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Research Agent</title>
+  <title>ResearchAgent — AI-Powered Research</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #1a1a1a; min-height: 100vh; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    .header { background: #fff; border-bottom: 1px solid #e5e5e5; padding: 1rem 2rem; display: flex; align-items: center; gap: 12px; }
-    .header h1 { font-size: 18px; font-weight: 600; }
-    .header span { font-size: 13px; color: #888; }
+    :root {
+      --bg:         #fafaf8;
+      --bg2:        #ffffff;
+      --bg3:        #f4f3ef;
+      --bg4:        #eeede8;
+      --border:     #e8e6df;
+      --border2:    #d4d1c8;
+      --text:       #1a1916;
+      --text2:      #6b6860;
+      --text3:      #a09e98;
+      --accent:     #2d5be3;
+      --accent-bg:  #eef2fd;
+      --accent2:    #1e45c7;
+      --green:      #1a7a4a;
+      --green-bg:   #eef7f2;
+      --green-bd:   #b8dfc9;
+      --amber:      #b45309;
+      --amber-bg:   #fef3e2;
+      --amber-bd:   #f6d28a;
+      --red:        #c0392b;
+      --red-bg:     #fef2f1;
+      --red-bd:     #f5c6c3;
+      --radius:     8px;
+      --radius-lg:  14px;
+      --radius-xl:  20px;
+      --shadow-sm:  0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow:     0 4px 16px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-lg:  0 12px 40px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06);
+    }
 
-    .container { max-width: 860px; margin: 2rem auto; padding: 0 1.5rem; }
+    html { scroll-behavior: smooth; }
 
-    .search-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
-    .search-row { display: flex; gap: 10px; }
-    .search-row input { flex: 1; padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; transition: border-color .2s; }
-    .search-row input:focus { border-color: #555; }
-    .search-row button { padding: 10px 20px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; transition: background .2s; white-space: nowrap; }
-    .search-row button:hover { background: #333; }
-    .search-row button:disabled { background: #999; cursor: not-allowed; }
+    body {
+      font-family: 'Geist', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.6;
+    }
 
-    .sample-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-    .sample-row span { font-size: 12px; color: #888; align-self: center; }
-    .sample-btn { padding: 4px 12px; border: 1px solid #ddd; border-radius: 20px; font-size: 12px; cursor: pointer; background: #f9f9f9; color: #555; transition: all .15s; }
-    .sample-btn:hover { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+    /* ── HEADER ── */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(250,250,248,0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-    .thinking { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 2rem; text-align: center; color: #888; display: none; }
-    .thinking .dots span { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #ccc; margin: 0 3px; animation: bounce 1.2s ease-in-out infinite; }
-    .thinking .dots span:nth-child(2) { animation-delay: .2s; }
-    .thinking .dots span:nth-child(3) { animation-delay: .4s; }
-    @keyframes bounce { 0%,100%{opacity:.3;transform:translateY(0)} 50%{opacity:1;transform:translateY(-4px)} }
+    .header-left { display: flex; align-items: center; gap: 10px; }
 
-    .result { display: none; }
+    .logo-mark {
+      width: 30px; height: 30px;
+      background: var(--text);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-mark svg { width: 15px; height: 15px; stroke: white; fill: none; stroke-width: 1.8; }
 
-    .confidence-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
-    .confidence-pill { padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
-    .confidence-pill.High { background: #dcfce7; color: #166534; }
-    .confidence-pill.Medium { background: #fef9c3; color: #854d0e; }
-    .confidence-pill.Low { background: #fee2e2; color: #991b1b; }
-    .confidence-reason { font-size: 13px; color: #666; }
+    .header-brand {
+      font-family: 'Instrument Serif', serif;
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+    .header-brand em { font-style: italic; color: var(--accent); }
 
-    .section { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
-    .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: #999; margin-bottom: 10px; }
-    .short-answer { font-size: 15px; line-height: 1.7; color: #1a1a1a; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
 
-    .finding { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; line-height: 1.6; color: #333; }
-    .finding:last-child { border-bottom: none; padding-bottom: 0; }
-    .finding-num { min-width: 22px; height: 22px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #666; flex-shrink: 0; margin-top: 1px; }
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      color: var(--text2);
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 12px;
+    }
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-    .source { padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
-    .source:last-child { border-bottom: none; padding-bottom: 0; }
-    .source-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 4px; }
-    .source-title { font-size: 13px; font-weight: 500; color: #1a1a1a; flex: 1; }
-    .source-score { font-size: 11px; color: #999; white-space: nowrap; margin-top: 2px; }
-    .score-track { height: 4px; background: #f0f0f0; border-radius: 2px; margin-bottom: 4px; overflow: hidden; }
-    .score-fill { height: 100%; border-radius: 2px; background: #16a34a; }
-    .source-url { font-size: 11px; color: #2563eb; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; margin-bottom: 4px; }
-    .source-url:hover { text-decoration: underline; }
-    .source-snippet { font-size: 12px; color: #666; line-height: 1.5; font-style: italic; }
+    .header-nav {
+      display: flex;
+      gap: 4px;
+    }
+    .nav-link {
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--text2);
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+      border: 1px solid transparent;
+    }
+    .nav-link:hover { color: var(--text); background: var(--bg3); border-color: var(--border); }
 
-    .tag-list { display: flex; flex-direction: column; gap: 6px; }
-    .tag-item { display: flex; gap: 8px; font-size: 13px; color: #444; line-height: 1.5; }
-    .tag-item::before { flex-shrink: 0; margin-top: 2px; }
-    .tag-item.limit::before { content: "\2022"; color: #999; }
-    .tag-item.assume::before { content: "\007E"; color: #999; font-weight: 600; }
-    .tag-item.step::before { content: "\2192"; color: #16a34a; font-weight: 600; }
+    /* ── LAYOUT ── */
+    .page {
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem 6rem;
+    }
 
-    .tabs { display: flex; gap: 0; margin-bottom: 1rem; border-bottom: 1px solid #e5e5e5; }
-    .tab { padding: 8px 16px; font-size: 13px; color: #888; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
-    .tab.active { color: #1a1a1a; border-bottom-color: #1a1a1a; font-weight: 500; }
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      margin-bottom: 2.75rem;
+      animation: fadeUp 0.5s ease both;
+    }
 
-    .tab-panel { display: none; }
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-bg);
+      border: 1px solid rgba(45,91,227,0.15);
+      border-radius: 20px;
+      padding: 4px 14px;
+      margin-bottom: 1.25rem;
+    }
+    .hero-kicker::before {
+      content: '';
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .hero-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(38px, 6vw, 58px);
+      font-weight: 400;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+    .hero-title em { font-style: italic; color: var(--accent); }
+
+    .hero-sub {
+      font-size: 15px;
+      color: var(--text2);
+      line-height: 1.7;
+      max-width: 460px;
+      margin: 0 auto;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── SEARCH ── */
+    .search-wrap {
+      animation: fadeUp 0.5s 0.1s ease both;
+      margin-bottom: 2rem;
+    }
+
+    .search-box {
+      background: var(--bg2);
+      border: 1.5px solid var(--border2);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      padding: 6px 6px 6px 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-box:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(45,91,227,0.08), var(--shadow-lg);
+    }
+
+    .search-icon { flex-shrink: 0; }
+    .search-icon svg { width: 16px; height: 16px; stroke: var(--text3); fill: none; stroke-width: 2; }
+
+    .search-box input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: 'Geist', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      padding: 10px 0;
+    }
+    .search-box input::placeholder { color: var(--text3); }
+
+    .search-btn {
+      flex-shrink: 0;
+      padding: 10px 22px;
+      background: var(--text);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-family: 'Geist', sans-serif;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      letter-spacing: 0.01em;
+      transition: background 0.15s, transform 0.1s, opacity 0.2s;
+      white-space: nowrap;
+    }
+    .search-btn:hover { background: #2d2c28; }
+    .search-btn:active { transform: scale(0.97); }
+    .search-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .suggestions {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      align-items: center;
+      justify-content: center;
+    }
+    .suggestions-label {
+      font-size: 12px;
+      color: var(--text3);
+      font-family: 'Geist Mono', monospace;
+    }
+    .suggestion {
+      padding: 4px 13px;
+      border: 1px solid var(--border2);
+      border-radius: 20px;
+      font-size: 12.5px;
+      cursor: pointer;
+      background: var(--bg2);
+      color: var(--text2);
+      font-family: 'Geist', sans-serif;
+      transition: all 0.15s;
+      box-shadow: var(--shadow-sm);
+    }
+    .suggestion:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+
+    /* ── ERROR ── */
+    .error-box {
+      background: var(--red-bg);
+      border: 1px solid var(--red-bd);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      color: var(--red);
+      font-size: 13px;
+      font-family: 'Geist Mono', monospace;
+      display: none;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── THINKING ── */
+    .thinking {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      display: none;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow);
+      animation: fadeUp 0.3s ease both;
+    }
+
+    .thinking-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.75rem;
+    }
+    .thinking-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .thinking-timer {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      color: var(--text3);
+    }
+
+    .pipeline {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      margin-bottom: 1.75rem;
+      position: relative;
+    }
+
+    .p-step {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+    }
+
+    .p-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 15px;
+      left: calc(50% + 15px);
+      right: calc(-50% + 15px);
+      height: 1px;
+      background: var(--border2);
+      transition: background 0.5s;
+    }
+    .p-step.done:not(:last-child)::after { background: var(--green); opacity: 0.4; }
+    .p-step.active:not(:last-child)::after { background: var(--accent); opacity: 0.2; }
+
+    .p-icon {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border2);
+      background: var(--bg3);
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+    .p-icon svg { width: 12px; height: 12px; stroke: var(--text3); fill: none; stroke-width: 1.8; transition: stroke 0.3s; }
+
+    .p-step.active .p-icon {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+      box-shadow: 0 0 0 4px rgba(45,91,227,0.1);
+    }
+    .p-step.active .p-icon svg { stroke: var(--accent); }
+    .p-step.active .p-icon::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 1px solid rgba(45,91,227,0.2);
+      animation: ripple 1.8s ease-out infinite;
+    }
+    @keyframes ripple { 0%{opacity:0.8;transform:scale(0.7)} 100%{opacity:0;transform:scale(1.6)} }
+
+    .p-step.done .p-icon {
+      border-color: var(--green-bd);
+      background: var(--green-bg);
+    }
+    .p-step.done .p-icon svg { stroke: var(--green); }
+
+    .p-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text3);
+      text-align: center;
+      transition: color 0.3s;
+    }
+    .p-step.active .p-label { color: var(--accent); }
+    .p-step.done .p-label { color: var(--green); }
+
+    .thinking-log {
+      background: var(--bg3);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 12px;
+      color: var(--text2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .log-cursor {
+      width: 7px; height: 14px;
+      background: var(--accent);
+      opacity: 0.7;
+      border-radius: 1px;
+      animation: blink 1s step-end infinite;
+      flex-shrink: 0;
+    }
+    @keyframes blink { 0%,100%{opacity:0.7} 50%{opacity:0} }
+
+    /* ── RESULT ── */
+    .result { display: none; animation: fadeUp 0.4s ease both; }
+
+    /* confidence */
+    .confidence-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1.25rem;
+      padding: 14px 18px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+    .conf-pill {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid;
+      flex-shrink: 0;
+    }
+    .conf-pill.High   { color: var(--green); background: var(--green-bg); border-color: var(--green-bd); }
+    .conf-pill.Medium { color: var(--amber); background: var(--amber-bg); border-color: var(--amber-bd); }
+    .conf-pill.Low    { color: var(--red);   background: var(--red-bg);   border-color: var(--red-bd); }
+    .conf-reason { font-size: 13px; color: var(--text2); font-family: 'Instrument Serif', serif; font-style: italic; line-height: 1.4; }
+
+    /* stats */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 1.25rem;
+    }
+    .stat {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1rem 1.125rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 6px;
+    }
+    .stat-val {
+      font-family: 'Instrument Serif', serif;
+      font-size: 32px;
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    /* tabs */
+    .tabs-wrap {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg3);
+    }
+    .tab {
+      padding: 11px 20px;
+      font-size: 13px;
+      color: var(--text2);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+    }
+    .tab:hover { color: var(--text); background: var(--bg4); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); background: var(--bg2); font-weight: 500; }
+
+    .tab-panel { display: none; padding: 1.5rem; }
     .tab-panel.active { display: block; }
 
-    .error-box { background: #fee2e2; border: 1px solid #fca5a5; border-radius: 12px; padding: 1.25rem 1.5rem; color: #991b1b; font-size: 14px; display: none; }
+    /* sections inside panels */
+    .section {
+      margin-bottom: 1.25rem;
+    }
+    .section:last-child { margin-bottom: 0; }
+    .section-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: 9.5px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text3);
+      margin-bottom: 10px;
+    }
+
+    #question-display {
+      font-family: 'Instrument Serif', serif;
+      font-size: 20px;
+      font-style: italic;
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .short-answer {
+      font-size: 14.5px;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 1.25rem 0;
+    }
+
+    /* findings */
+    .finding {
+      display: flex;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      align-items: flex-start;
+    }
+    .finding:last-child { border-bottom: none; padding-bottom: 0; }
+    .finding-num {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      color: var(--text3);
+      min-width: 20px;
+      padding-top: 2px;
+    }
+    .finding-text { font-size: 13.5px; line-height: 1.7; color: var(--text); }
+
+    /* sources */
+    .source {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .source:last-child { border-bottom: none; padding-bottom: 0; }
+    .source-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+    .source-favicon {
+      width: 18px; height: 18px;
+      border-radius: 4px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+    .source-favicon svg { width: 9px; height: 9px; stroke: var(--text3); fill: none; stroke-width: 2; }
+    .source-title { font-size: 13.5px; font-weight: 500; color: var(--text); flex: 1; line-height: 1.4; }
+    .source-score {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      color: var(--text3);
+      white-space: nowrap;
+      margin-top: 1px;
+    }
+    .score-bar { height: 3px; background: var(--bg4); border-radius: 3px; margin-bottom: 8px; overflow: hidden; }
+    .score-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), #6b8ef0); transition: width 0.8s ease; }
+    .source-url {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      text-decoration: none;
+      display: block;
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      opacity: 0.8;
+    }
+    .source-url:hover { opacity: 1; text-decoration: underline; }
+    .source-snippet { font-size: 12.5px; color: var(--text2); line-height: 1.65; }
+
+    /* meta tags */
+    .meta-list { display: flex; flex-direction: column; gap: 10px; }
+    .meta-item { display: flex; gap: 12px; font-size: 13.5px; color: var(--text); line-height: 1.6; align-items: flex-start; }
+    .meta-icon {
+      width: 20px; height: 20px;
+      border-radius: 5px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .meta-icon.limit  { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-bd); }
+    .meta-icon.assume { background: var(--amber-bg);  color: var(--amber); border: 1px solid var(--amber-bd); }
+    .meta-icon.step   { background: var(--accent-bg); color: var(--accent); border: 1px solid rgba(45,91,227,0.2); }
+
+    /* footer */
+    .footer {
+      text-align: center;
+      padding: 2rem 0 0;
+      font-size: 12px;
+      color: var(--text3);
+      font-family: 'Geist Mono', monospace;
+    }
+
+    @media (max-width: 600px) {
+      .header { padding: 0 1rem; }
+      .page { padding: 2rem 1rem 4rem; }
+      .p-label { display: none; }
+      .stats-row { grid-template-columns: repeat(3,1fr); }
+      .header-nav { display: none; }
+      .hero-title { font-size: 34px; }
+    }
   </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>Research Agent</h1>
-  <span>Research your questions with AI.</span>
-</div>
-
-<div class="container">
-
-  <div class="search-card">
-    <div class="search-row">
-      <input type="text" id="question-input" placeholder="Ask a research question..." value="Find 5 Indian B2B SaaS startups in HR tech"/>
-      <button id="research-btn" onclick="runResearch()">Research</button>
+<!-- ── HEADER ── -->
+<header class="header">
+  <div class="header-left">
+    <div class="logo-mark">
+      <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="5"/><path d="M8 5.5V8l1.5 1.5"/></svg>
     </div>
-    <div class="sample-row">
-      <span>Try:</span>
-      <button class="sample-btn" onclick="setQ('Compare the top 3 open-source vector databases for RAG')">Vector DBs</button>
-      <button class="sample-btn" onclick="setQ('Find 5 Indian B2B SaaS startups in HR tech')">HR startups</button>
-      <button class="sample-btn" onclick="setQ('Pros and cons of multi-agent architecture for customer support')">Multi-agent</button>
-      <button class="sample-btn" onclick="setQ('Which AI model will be the best in 2030')">Edge case</button>
+    <span class="header-brand">Research<em>Agent</em></span>
+  </div>
+  <div class="header-right">
+    <nav class="header-nav">
+      <a class="nav-link" href="https://github.com/VedikaParab/research-agent/blob/main/README.md">Docs</a>
+      <a class="nav-link" href="#">API</a>
+    </nav>
+    <div class="status-badge">
+      <div class="status-dot"></div>
+      ReAct · Planner · Judge
+    </div>
+  </div>
+</header>
+
+<!-- ── PAGE ── -->
+<main class="page">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-kicker">AI-Powered Research</div>
+    <h1 class="hero-title">Ask anything.<br><em>Get answers.</em></h1>
+    <p class="hero-sub">Multi-step agent that plans, searches, fetches, filters, synthesises, and quality-checks every answer.</p>
+  </div>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <div class="search-box">
+      <div class="search-icon">
+        <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L13 13"/></svg>
+      </div>
+      <input type="text" id="question-input" placeholder="Ask a research question…" value="Find 5 Indian B2B SaaS startups in HR tech"/>
+      <button class="search-btn" id="research-btn" onclick="runResearch()">Research →</button>
+    </div>
+    <div class="suggestions">
+      <span class="suggestions-label">Try —</span>
+      <button class="suggestion" onclick="setQ('Compare the top 3 open-source vector databases for RAG')">Vector DBs</button>
+      <button class="suggestion" onclick="setQ('Find 5 Indian B2B SaaS startups in HR tech')">HR startups</button>
+      <button class="suggestion" onclick="setQ('Pros and cons of multi-agent architecture for customer support')">Multi-agent</button>
+      <button class="suggestion" onclick="setQ('Which AI model will be the best in 2030')">Edge case</button>
     </div>
   </div>
 
+  <!-- Error -->
   <div class="error-box" id="error-box"></div>
 
+  <!-- Thinking -->
   <div class="thinking" id="thinking">
-    <div class="dots"><span></span><span></span><span></span></div>
-    <p style="margin-top:12px;font-size:14px;">Researching, this may take 30&ndash;60 seconds...</p>
+    <div class="thinking-header">
+      <span class="thinking-title">Running research pipeline…</span>
+      <span class="thinking-timer" id="timer-display">0s</span>
+    </div>
+    <div class="pipeline">
+      <div class="p-step" id="step-plan">
+        <div class="p-icon">
+          <svg viewBox="0 0 16 16"><path d="M3 4h10M3 7.5h7M3 11h9"/></svg>
+        </div>
+        <div class="p-label">Planning</div>
+      </div>
+      <div class="p-step" id="step-search">
+        <div class="p-icon">
+          <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><path d="M10.5 10.5l2.5 2.5"/></svg>
+        </div>
+        <div class="p-label">Searching</div>
+      </div>
+      <div class="p-step" id="step-fetch">
+        <div class="p-icon">
+          <svg viewBox="0 0 16 16"><rect x="2.5" y="3" width="11" height="10" rx="1.5"/><path d="M5 7h6M5 10h4"/></svg>
+        </div>
+        <div class="p-label">Fetching</div>
+      </div>
+      <div class="p-step" id="step-synth">
+        <div class="p-icon">
+          <svg viewBox="0 0 16 16"><path d="M3 8h4l2-4 2 8 2-4h2"/></svg>
+        </div>
+        <div class="p-label">Synthesising</div>
+      </div>
+      <div class="p-step" id="step-judge">
+        <div class="p-icon">
+          <svg viewBox="0 0 16 16"><path d="M3.5 8.5l2.5 2.5 6-6"/></svg>
+        </div>
+        <div class="p-label">Judging</div>
+      </div>
+    </div>
+    <div class="thinking-log">
+      <div class="log-cursor"></div>
+      <span id="log-text">Initialising…</span>
+    </div>
   </div>
 
+  <!-- Result -->
   <div class="result" id="result">
 
-    <div class="confidence-bar">
-      <span class="confidence-pill" id="conf-pill"></span>
-      <span class="confidence-reason" id="conf-reason"></span>
+    <div class="confidence-row">
+      <span class="conf-pill" id="conf-pill"></span>
+      <span class="conf-reason" id="conf-reason"></span>
     </div>
 
-    <div class="tabs">
-      <div class="tab active" onclick="switchTab('answer',this)">Answer</div>
-      <div class="tab" onclick="switchTab('sources',this)">Sources</div>
-      <div class="tab" onclick="switchTab('meta',this)">Limitations & next steps</div>
-    </div>
-
-    <div class="tab-panel active" id="tab-answer">
-      <div class="section">
-        <div class="section-label">Question</div>
-        <div class="short-answer" id="question-display" style="color:#666;font-size:14px;"></div>
+    <div class="stats-row" id="stats-row" style="display:none">
+      <div class="stat">
+        <div class="stat-label">Sources used</div>
+        <div class="stat-val" id="stat-sources">—</div>
       </div>
-      <div class="section">
-        <div class="section-label">Short answer</div>
-        <div class="short-answer" id="short-answer"></div>
+      <div class="stat">
+        <div class="stat-label">Key findings</div>
+        <div class="stat-val" id="stat-findings">—</div>
       </div>
-      <div class="section">
-        <div class="section-label">Key findings</div>
-        <div id="findings"></div>
+      <div class="stat">
+        <div class="stat-label">Next steps</div>
+        <div class="stat-val" id="stat-nextsteps">—</div>
       </div>
     </div>
 
-    <div class="tab-panel" id="tab-sources">
-      <div class="section">
-        <div class="section-label">Sources used</div>
+    <div class="tabs-wrap">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('answer',this)">Answer</div>
+        <div class="tab" onclick="switchTab('sources',this)">Sources</div>
+        <div class="tab" onclick="switchTab('meta',this)">Limitations &amp; next steps</div>
+      </div>
+
+      <!-- Answer tab -->
+      <div class="tab-panel active" id="tab-answer">
+        <div class="section">
+          <div class="section-label">Question</div>
+          <div id="question-display"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="section">
+          <div class="section-label">Short answer</div>
+          <div class="short-answer" id="short-answer"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="section">
+          <div class="section-label">Key findings</div>
+          <div id="findings"></div>
+        </div>
+      </div>
+
+      <!-- Sources tab -->
+      <div class="tab-panel" id="tab-sources">
         <div id="sources"></div>
       </div>
-    </div>
 
-    <div class="tab-panel" id="tab-meta">
-      <div class="section">
-        <div class="section-label">Limitations</div>
-        <div class="tag-list" id="limitations"></div>
-      </div>
-      <div class="section">
-        <div class="section-label">Assumptions</div>
-        <div class="tag-list" id="assumptions"></div>
-      </div>
-      <div class="section">
-        <div class="section-label">Suggested next steps</div>
-        <div class="tag-list" id="next-steps"></div>
+      <!-- Meta tab -->
+      <div class="tab-panel" id="tab-meta">
+        <div class="section">
+          <div class="section-label">Limitations</div>
+          <div class="meta-list" id="limitations"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="section">
+          <div class="section-label">Assumptions</div>
+          <div class="meta-list" id="assumptions"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="section">
+          <div class="section-label">Suggested next steps</div>
+          <div class="meta-list" id="next-steps"></div>
+        </div>
       </div>
     </div>
 
   </div>
-</div>
+
+  <div class="footer">Built with ReAct · Groq · Tavily</div>
+</main>
 
 <script>
-  function setQ(q) {
-    document.getElementById('question-input').value = q;
-  }
+  function setQ(q) { document.getElementById('question-input').value = q; }
 
   function switchTab(name, el) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -173,15 +811,74 @@
     document.getElementById('tab-' + name).classList.add('active');
   }
 
+  const STEPS = ['plan','search','fetch','synth','judge'];
+  const STEP_LOGS = {
+    plan:   'Building a multi-step research plan…',
+    search: 'Querying the web for relevant sources…',
+    fetch:  'Fetching and parsing full page content…',
+    synth:  'Synthesising findings into a structured answer…',
+    judge:  'Running quality and confidence checks…',
+  };
+  const STEP_DELAYS = [0, 3500, 11000, 23000, 37000];
+  let stepTimers = [];
+  let timerInterval = null;
+  let startTime = null;
+
+  function clearTimers() {
+    stepTimers.forEach(clearTimeout);
+    stepTimers = [];
+    if (timerInterval) clearInterval(timerInterval);
+  }
+
+  function startTimer() {
+    startTime = Date.now();
+    timerInterval = setInterval(() => {
+      const s = Math.floor((Date.now() - startTime) / 1000);
+      document.getElementById('timer-display').textContent = s + 's';
+    }, 1000);
+  }
+
+  function setStep(id) {
+    const cur = STEPS.indexOf(id);
+    STEPS.forEach((s, i) => {
+      const el = document.getElementById('step-' + s);
+      if (i < cur) el.className = 'p-step done';
+      else if (i === cur) el.className = 'p-step active';
+      else el.className = 'p-step';
+    });
+    document.getElementById('log-text').textContent = STEP_LOGS[id] || '';
+  }
+
+  function finishPipeline() {
+    STEPS.forEach(s => { document.getElementById('step-' + s).className = 'p-step done'; });
+    document.getElementById('log-text').textContent = 'Research complete.';
+    if (timerInterval) clearInterval(timerInterval);
+  }
+
+  function resetPipeline() {
+    STEPS.forEach(s => { document.getElementById('step-' + s).className = 'p-step'; });
+    document.getElementById('log-text').textContent = 'Initialising…';
+    document.getElementById('timer-display').textContent = '0s';
+  }
+
   async function runResearch() {
     const q = document.getElementById('question-input').value.trim();
     if (!q) return;
 
+    clearTimers();
+    resetPipeline();
+    startTimer();
+
     document.getElementById('research-btn').disabled = true;
-    document.getElementById('research-btn').textContent = 'Researching...';
+    document.getElementById('research-btn').textContent = 'Researching…';
     document.getElementById('thinking').style.display = 'block';
     document.getElementById('result').style.display = 'none';
     document.getElementById('error-box').style.display = 'none';
+    document.getElementById('stats-row').style.display = 'none';
+
+    STEPS.forEach((id, i) => {
+      stepTimers.push(setTimeout(() => setStep(id), STEP_DELAYS[i]));
+    });
 
     try {
       const res = await fetch('/research', {
@@ -189,62 +886,78 @@
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({question: q})
       });
-
-      if (!res.ok) throw new Error('Server error: ' + res.status);
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.detail || ('Server error: ' + res.status));
+      }
       const data = await res.json();
-      renderResult(data);
-
+      clearTimers();
+      finishPipeline();
+      setTimeout(() => {
+        document.getElementById('thinking').style.display = 'none';
+        renderResult(data);
+      }, 500);
     } catch(e) {
-      document.getElementById('error-box').textContent = 'Error: ' + e.message + '. Make sure your FastAPI server is running.';
+      clearTimers();
+      document.getElementById('thinking').style.display = 'none';
+      document.getElementById('error-box').textContent = '⚠ ' + e.message + ' — make sure your FastAPI server is running.';
       document.getElementById('error-box').style.display = 'block';
     } finally {
-      document.getElementById('thinking').style.display = 'none';
       document.getElementById('research-btn').disabled = false;
-      document.getElementById('research-btn').textContent = 'Research';
+      document.getElementById('research-btn').textContent = 'Research →';
     }
   }
 
   function renderResult(data) {
-    const conf = data.confidence_level;
+    const conf = data.confidence_level || 'Low';
     document.getElementById('conf-pill').textContent = conf;
-    document.getElementById('conf-pill').className = 'confidence-pill ' + conf;
-    document.getElementById('conf-reason').textContent = data.confidence_reasoning;
+    document.getElementById('conf-pill').className = 'conf-pill ' + conf;
+    document.getElementById('conf-reason').textContent = data.confidence_reasoning || '';
 
-    document.getElementById('question-display').textContent = data.question;
-    document.getElementById('short-answer').textContent = data.short_answer;
+    document.getElementById('question-display').textContent = data.question || '';
+    document.getElementById('short-answer').textContent = data.short_answer || '';
 
-    const findings = document.getElementById('findings');
-    findings.innerHTML = data.key_findings.map((f, i) =>
-      `<div class="finding"><div class="finding-num">${i+1}</div><div>${f}</div></div>`
-    ).join('');
+    document.getElementById('findings').innerHTML = (data.key_findings || []).map((f, i) => `
+      <div class="finding" style="animation-delay:${i * 0.06}s">
+        <div class="finding-num">${String(i+1).padStart(2,'0')}</div>
+        <div class="finding-text">${f}</div>
+      </div>`).join('');
 
-    const sources = document.getElementById('sources');
-    sources.innerHTML = data.sources.map(s => {
-      const score = Math.round(s.relevance_score * 100);
-      return `
-        <div class="source">
-          <div class="source-header">
-            <div class="source-title">${s.title}</div>
-            <div class="source-score">${score}% relevant</div>
-          </div>
-          <div class="score-track"><div class="score-fill" style="width:${score}%"></div></div>
-          <a class="source-url" href="${s.url}" target="_blank">${s.url}</a>
-          <div class="source-snippet">"${s.snippet.slice(0,180)}..."</div>
-        </div>`;
+    document.getElementById('sources').innerHTML = (data.sources || []).map(s => {
+      const score = Math.round((s.relevance_score || 0) * 100);
+      const domain = (() => { try { return new URL(s.url).hostname; } catch(e) { return s.url; } })();
+      return `<div class="source">
+        <div class="source-header">
+          <div class="source-favicon"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="5"/></svg></div>
+          <div class="source-title">${s.title || 'Untitled'}</div>
+          <div class="source-score">${score}%</div>
+        </div>
+        <div class="score-bar"><div class="score-fill" style="width:${score}%"></div></div>
+        <a class="source-url" href="${s.url}" target="_blank" rel="noopener">${domain}</a>
+        ${s.snippet ? `<div class="source-snippet">${s.snippet.slice(0,200)}${s.snippet.length > 200 ? '…' : ''}</div>` : ''}
+      </div>`;
     }).join('');
 
     document.getElementById('limitations').innerHTML =
-      data.limitations.map(l => `<div class="tag-item limit">${l}</div>`).join('');
+      (data.limitations || []).map(l =>
+        `<div class="meta-item"><div class="meta-icon limit">!</div><span>${l}</span></div>`).join('');
 
     document.getElementById('assumptions').innerHTML =
-      data.assumptions.map(a => `<div class="tag-item assume">${a}</div>`).join('');
+      (data.assumptions || []).map(a =>
+        `<div class="meta-item"><div class="meta-icon assume">~</div><span>${a}</span></div>`).join('');
 
     document.getElementById('next-steps').innerHTML =
-      data.suggested_next_steps.map(s => `<div class="tag-item step">${s}</div>`).join('');
+      (data.suggested_next_steps || []).map(s =>
+        `<div class="meta-item"><div class="meta-icon step">→</div><span>${s}</span></div>`).join('');
+
+    document.getElementById('stat-sources').textContent = (data.sources || []).length;
+    document.getElementById('stat-findings').textContent = (data.key_findings || []).length;
+    document.getElementById('stat-nextsteps').textContent = (data.suggested_next_steps || []).length;
+    document.getElementById('stats-row').style.display = 'grid';
 
     document.getElementById('result').style.display = 'block';
 
-    // switch back to answer tab
+    // reset tabs to Answer
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     document.querySelector('.tab').classList.add('active');

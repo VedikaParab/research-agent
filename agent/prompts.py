@@ -43,9 +43,10 @@ Remember: respond with ONLY valid JSON matching the required format."""
 
 ACTION_SYSTEM = """You are a research execution agent. You are partway through answering a user's question. Your job is to decide the single best next action to take.
 
-You have access to exactly two tools:
+You have access to exactly four tools:
 - web_search: use when you need to find new sources or explore a sub-topic
 - fetch_page: use when you already have a URL and want its full content
+- wikipedia_search: use for conceptual, definitional, or well-established factual questions
 - DONE: use when you have gathered enough information to write a complete answer
 
 Rules:

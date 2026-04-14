@@ -1,6 +1,6 @@
 # agent/orchestrator.py
 import logging
-from schemas import AgentState, ToolName, FinalAnswer
+from schemas import AgentState, ToolName, FinalAnswer, ConfidenceLevel
 from agent.prompts import (
     PLANNER_SYSTEM, build_planner_prompt,
     ACTION_SYSTEM,  build_action_prompt,
@@ -9,6 +9,7 @@ from agent.prompts import (
 from agent.llm import call_planner, call_action_selector, call_synthesizer
 from tools.search import web_search
 from tools.scraper import fetch_page
+from sanitization import sanitize_gathered, sanitize_question, is_safe_question
 
 logger = logging.getLogger(__name__)
 
@@ -17,8 +18,11 @@ MIN_SOURCES     = 3
 
 
 # ── Entry point ────────────────────────────────────────────────────────────────
-
 def run_agent(question: str) -> FinalAnswer:
+    safe, result = sanitize_question(question)
+    if not safe:
+        return _empty_answer(state=AgentState(question=question), reason=result)
+    question = result
     """
     Full ReAct loop:
       1. Plan  — LLM produces a research plan
@@ -288,31 +292,26 @@ def _handle_fetch_page(
 
 # ── Phase 3: Synthesis ─────────────────────────────────────────────────────────
 
-def _judge_answer(answer: FinalAnswer, question: str) -> FinalAnswer:
-    """
-    Simple rule-based judge that catches obvious quality issues
-    without needing an extra LLM call.
-    """
+def _judge_answer(answer: FinalAnswer, question: str, source_count: int | None = None) -> FinalAnswer:
     issues = []
+    actual_source_count = source_count if source_count is not None else len(answer.sources)
 
-    # check: list questions should have enough findings
     q = question.lower()
     if "5" in q and len(answer.key_findings) < 3:
         issues.append("Fewer findings than requested — sources were insufficient")
-        answer.confidence_level = "Low"
+        answer.confidence_level = ConfidenceLevel.low
 
-    # check: future/speculative questions should be Low confidence
     speculative_words = ["2030", "2035", "future", "will be", "predict", "forecast"]
     if any(w in q for w in speculative_words):
-        if answer.confidence_level.value == "High":
+        if answer.confidence_level == ConfidenceLevel.high:
             logger.info("[judge] Downgrading confidence: speculative question")
-            answer.confidence_level = "Medium"
+            answer.confidence_level = ConfidenceLevel.medium
         issues.append("Question is speculative — answer reflects current trends only")
 
-    # check: too few sources
-    if len(answer.sources) < 2:
+    # use actual_source_count, not answer.sources (which may be empty in mocks)
+    if actual_source_count < 2:
         issues.append("Very few sources — answer may be incomplete")
-        answer.confidence_level = "Low"
+        answer.confidence_level = ConfidenceLevel.low
 
     if issues:
         answer.limitations = list(set(answer.limitations + issues))
@@ -322,20 +321,22 @@ def _judge_answer(answer: FinalAnswer, question: str) -> FinalAnswer:
 
 def _run_synthesis(state: AgentState) -> FinalAnswer:
     quality_sources = _filter_quality_sources(state.gathered_info)
+    quality_sources = sanitize_gathered(quality_sources)
     logger.info(
         f"[agent] Phase 3: Synthesis — "
         f"{len(quality_sources)}/{len(state.gathered_info)} quality sources"
     )
 
-    original             = state.gathered_info
-    state.gathered_info  = quality_sources
+    original            = state.gathered_info
+    state.gathered_info = quality_sources
 
     try:
         answer = call_synthesizer(
             system_prompt=SYNTHESIS_SYSTEM,
             user_prompt=build_synthesis_prompt(state),
         )
-        answer = _judge_answer(answer, state.question)  # <-- add this line
+        # pass source count so judge doesn't re-evaluate what the LLM already saw
+        answer = _judge_answer(answer, state.question, source_count=len(quality_sources))
         logger.info(
             f"[agent] Synthesis complete — "
             f"confidence={answer.confidence_level}, "
@@ -359,7 +360,7 @@ def _empty_answer(state: AgentState, reason: str = "") -> FinalAnswer:
         short_answer="The agent was unable to produce an answer due to errors during research.",
         key_findings=[],
         sources=[],
-        confidence_level="Low",
+        confidence_level=ConfidenceLevel.low,
         confidence_reasoning=f"Research or synthesis failed. Reason: {reason or 'unknown'}",
         limitations=[
             "No sources were successfully gathered or synthesized.",
@@ -374,34 +375,38 @@ def _empty_answer(state: AgentState, reason: str = "") -> FinalAnswer:
         ],
     )
 
-# replace _filter_quality_sources entirely
 def _filter_quality_sources(gathered: list[dict], min_length: int = 150) -> list[dict]:
-    """
-    Filter weak sources but be lenient — search snippets are naturally short.
-    Only drop sources that are truly empty or useless (social media, login walls).
-    """
     JUNK_DOMAINS = [
-        "instagram.com", "facebook.com", "twitter.com", "x.com","linkedin.com/posts",
+        "instagram.com", "facebook.com", "twitter.com", "x.com", "linkedin.com/posts",
         "linkedin.com/feed", "reddit.com/r/", "quora.com",
         "trustpilot.com", "yelp.com",
     ]
+    MIN_KEPT = 2
 
     quality = []
+    borderline = []
+
     for item in gathered:
         url     = item.get("url", "")
         content = item.get("content") or item.get("snippet", "")
 
-        # drop social/junk domains
         if any(junk in url for junk in JUNK_DOMAINS):
             logger.info(f"[agent] Dropping junk domain: {url}")
             continue
 
-        # drop truly empty sources
         if len(content.strip()) < min_length:
-            logger.info(f"[agent] Dropping empty source: {url}")
+            logger.info(f"[agent] Borderline source (short content): {url}")
+            borderline.append(item)
             continue
 
         quality.append(item)
 
-    # always keep at least 3 sources even if all are borderline
-    return quality if len(quality) >= 3 else gathered[:3]
+    # Only top up if the *total non-junk* pool is large enough to warrant MIN_KEPT
+    # This avoids promoting borderline sources when there's genuinely little data
+    non_junk_total = len(quality) + len(borderline)
+    if len(quality) < MIN_KEPT and len(gathered) > MIN_KEPT:
+        needed = MIN_KEPT - len(quality)
+        quality.extend(borderline[:needed])
+        logger.info(f"[agent] Topped up with {min(needed, len(borderline))} borderline sources")
+
+    return quality

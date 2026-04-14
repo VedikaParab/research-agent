@@ -9,7 +9,8 @@ from datetime import datetime
 from agent.orchestrator import run_agent
 from schemas import FinalAnswer
 
-
+from config import validate_or_raise
+validate_or_raise()
 # ── Logging setup ──────────────────────────────────────────────────────────────
 
 def setup_logging(verbose: bool = False) -> None:
