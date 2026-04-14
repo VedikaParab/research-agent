@@ -2,7 +2,7 @@
 
 **Author:** Vedika Parab · April 2026  
 **Deployed:** [research-agent-opf4.onrender.com](https://research-agent-opf4.onrender.com)  
-**Repo:** [github.com/VedikaParab/research-agent](https://github.com/VedikaParab/research-agent)
+**Repo:** [github.com/VedikaParab/research-agent](https://github.com/VedikaParab/research-agent)  
 **Video Demo:** [Research Agent Video Demo](https://drive.google.com/file/d/1hAqMw06Ax-VnBynXE1ZA-eJS3ipz3jb8/view?usp=sharing)
 ---
 
